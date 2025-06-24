@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace WebApplication3.Model
+namespace alunos.Model.Class
 {
     public class StudentClass
     {
@@ -14,19 +14,19 @@ namespace WebApplication3.Model
         {
             this.studentName = studentName;
 
-            this.startTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            startTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
-        public Boolean hasEnded()
+        public bool hasEnded()
         {
             var currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            return (currentTime - startTime) >= 10800000;
+            return currentTime - startTime >= 10800000;
         }
 
         public string GetRemainingTimeFormatted()
         {
             var currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            var timeLeft = (startTime + 10800000) - currentTime;
+            var timeLeft = startTime + 10800000 - currentTime;
 
             if (timeLeft <= 0)
                 return "Tempo encerrado";

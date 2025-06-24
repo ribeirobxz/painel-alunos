@@ -1,4 +1,4 @@
-﻿namespace alunos.Model
+﻿namespace alunos.Model.Class
 {
     public class ViewStudentClassDTO
     {

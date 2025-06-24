@@ -1,16 +1,16 @@
 
 using alunos.Model;
+using alunos.Model.Class;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApplication3.context;
-using WebApplication3.Model;
 
 namespace WebApplication3.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ClassController : ControllerBase
     {
 
@@ -83,7 +83,7 @@ namespace WebApplication3.Controllers
                 return BadRequest(new { error = "Já existe uma aula para esse aluno" });
             }
 
-            _classDBContext.classes.Add(studentClass);
+            await _classDBContext.classes.AddAsync(studentClass);
             await _classDBContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetClass), new { studentName = studentClass.studentName }, studentClass);

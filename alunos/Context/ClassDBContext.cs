@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WebApplication3.Model;
+﻿using alunos.Model.Class;
+using alunos.Model.Student;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication3.context
 {
@@ -9,5 +10,6 @@ namespace WebApplication3.context
         public ClassDBContext(DbContextOptions<ClassDBContext> options) : base(options) { }
 
         public DbSet<StudentClass> classes { get; set; }
+        public DbSet<Student> Students { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace WebApplication3.Model
+﻿namespace alunos.Model.Class
 {
     public class CreateStudentClassDTO
     {
