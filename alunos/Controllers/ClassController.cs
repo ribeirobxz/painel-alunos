@@ -1,4 +1,5 @@
 
+using alunos.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -23,7 +24,13 @@ namespace WebApplication3.Controllers
         [HttpGet]
         public async Task<ActionResult<StudentClass>> GetAllClasses()
         {
-            var classes = await _classDBContext.classes.ToListAsync();
+            var classes = await _classDBContext.classes
+                .Select(c => new ViewStudentClassDTO
+                {
+                    studentName = c.studentName,
+                    remainingTime = c.GetRemainingTimeFormatted()
+                })
+                .ToListAsync();
             return Ok(classes);
         }
 
@@ -49,7 +56,7 @@ namespace WebApplication3.Controllers
 
             }
 
-            string status = studentClass.hasEnded() ? "Finalizada" : "Em andamento";
+            var status = studentClass.hasEnded() ? "Finalizada" : "Em andamento";
             return Ok(new { Status = status });
         }
 
@@ -63,14 +70,14 @@ namespace WebApplication3.Controllers
 
             }
 
-            return Ok(new { Duration = studentClass.GetRemainingTimeFormatted() });
+            return Ok(new { duration = studentClass.GetRemainingTimeFormatted() });
         }
 
         [HttpPost]
         public async Task<ActionResult<StudentClass>> createClass(CreateStudentClassDTO createStudentClassDTO)
         {
-            StudentClass studentClass = new StudentClass(createStudentClassDTO.studentName);
-            Boolean hasWithSameName = _classDBContext.classes.Any(otherClass => otherClass.studentName == studentClass.studentName);
+            var studentClass = new StudentClass(createStudentClassDTO.studentName);
+            var hasWithSameName = _classDBContext.classes.Any(otherClass => otherClass.studentName == studentClass.studentName);
             if(hasWithSameName)
             {
                 return BadRequest(new { error = "Já existe uma aula para esse aluno" });

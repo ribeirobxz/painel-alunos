@@ -19,19 +19,19 @@ namespace WebApplication3.Model
 
         public Boolean hasEnded()
         {
-            long currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             return (currentTime - startTime) >= 10800000;
         }
 
         public string GetRemainingTimeFormatted()
         {
-            long currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            long timeLeft = (startTime + 10800000) - currentTime;
+            var currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var timeLeft = (startTime + 10800000) - currentTime;
 
             if (timeLeft <= 0)
                 return "Tempo encerrado";
 
-            TimeSpan remaining = TimeSpan.FromMilliseconds(timeLeft);
+            var remaining = TimeSpan.FromMilliseconds(timeLeft);
 
             return string.Format("{0:D2}:{1:D2}:{2:D2}",
                 remaining.Hours,

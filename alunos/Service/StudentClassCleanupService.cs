@@ -19,16 +19,16 @@ namespace alunos.Service
             {
                 using (var scope = _scopeFactory.CreateScope())
                 {
-                    var dbContext = scope.ServiceProvider.GetRequiredService<ClassDBContext>();
+                    var databaseContext = scope.ServiceProvider.GetRequiredService<ClassDBContext>();
 
-                    var expiredStudents = dbContext.classes
+                    var finishedStudentClasses = databaseContext.classes
                         .Where(studentClass => (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - studentClass.startTime) >= 10800000)
                         .ToList();
 
-                    if (expiredStudents.Any())
+                    if (finishedStudentClasses.Any())
                     {
-                        dbContext.classes.RemoveRange(expiredStudents);
-                        await dbContext.SaveChangesAsync();
+                        databaseContext.classes.RemoveRange(finishedStudentClasses);
+                        await databaseContext.SaveChangesAsync();
                     }
                 }
 
