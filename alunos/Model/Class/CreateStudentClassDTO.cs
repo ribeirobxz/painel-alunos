@@ -3,6 +3,7 @@
     public class CreateStudentClassDTO
     {
 
-        public string studentName { get; set; }
+        public int studentId { get; set; }
+        public string dayOfWeek { get; set; }
     }
 }

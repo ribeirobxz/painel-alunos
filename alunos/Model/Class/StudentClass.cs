@@ -1,43 +1,32 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
+﻿
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace alunos.Model.Class
 {
     public class StudentClass
     {
-
         [Key]
-        public string studentName {  get; set; }
-        public long startTime { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
 
-        public StudentClass(string studentName)
+        public int StudentId { get; set; }
+
+        [ForeignKey("StudentId")]
+        public virtual Student Student { get; set; }
+
+        public string DayOfWeek { get; set; }
+
+        public long StartTime { get; set; }
+
+        public StudentClass() { } 
+
+        public StudentClass(int studentId, string dayOfWeek)
         {
-            this.studentName = studentName;
+            StudentId = studentId;
+            DayOfWeek = dayOfWeek;
 
-            startTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            StartTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
-
-        public bool hasEnded()
-        {
-            var currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            return currentTime - startTime >= 10800000;
-        }
-
-        public string GetRemainingTimeFormatted()
-        {
-            var currentTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            var timeLeft = startTime + 10800000 - currentTime;
-
-            if (timeLeft <= 0)
-                return "Tempo encerrado";
-
-            var remaining = TimeSpan.FromMilliseconds(timeLeft);
-
-            return string.Format("{0:D2}:{1:D2}:{2:D2}",
-                remaining.Hours,
-                remaining.Minutes,
-                remaining.Seconds);
-        }
-
     }
 }

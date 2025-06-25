@@ -22,7 +22,7 @@ namespace alunos.Service
                     var databaseContext = scope.ServiceProvider.GetRequiredService<ClassDBContext>();
 
                     var finishedStudentClasses = databaseContext.classes
-                        .Where(studentClass => (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - studentClass.startTime) >= 10800000)
+                        .Where(studentClass => (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - studentClass.StartTime) >= 10800000)
                         .ToList();
 
                     if (finishedStudentClasses.Any())
