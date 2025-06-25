@@ -1,5 +1,6 @@
 ﻿using alunos.Model;
 using alunos.Model.Class;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication3.context;
@@ -19,6 +20,7 @@ namespace alunos.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Student>> createStudent([FromBody] CreateStudentDTO createStudentDTO)
         {
             var hasWithSameName = await _classDBContext.Students.AnyAsync(student => student.Name == createStudentDTO.name);
@@ -36,6 +38,22 @@ namespace alunos.Controllers
                 new { studentId = student.Id },
                 student                
             );
+        }
+
+        [HttpDelete("{studentId}")]
+        [Authorize]
+        public async Task<ActionResult<Student>> DeleteStudent(int studentId)
+        {
+            var student = await _classDBContext.Students.FindAsync(studentId);
+            if(student == null)
+            {
+                return NotFound(new { message = "Nenhum estudante encontrado com esseId." });
+            }
+
+            _classDBContext.Students.Remove(student);
+            await _classDBContext.SaveChangesAsync();
+
+            return Ok(new { message = "Estudante deletado com sucesso" });
         }
 
         [HttpGet]

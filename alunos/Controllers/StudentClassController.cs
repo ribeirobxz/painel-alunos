@@ -1,6 +1,7 @@
 
 using alunos.Model;
 using alunos.Model.Class;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -49,6 +50,7 @@ namespace WebApplication3.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<StudentClass>> createClass(CreateStudentClassDTO createStudentClassDTO)
         {
             var student = await _classDBContext.Students.FindAsync(createStudentClassDTO.studentId);

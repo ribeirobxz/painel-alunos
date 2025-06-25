@@ -11,6 +11,7 @@ namespace WebApplication3.context
 
         public DbSet<StudentClass> classes { get; set; }
         public DbSet<Student> Students { get; set; }
+        public DbSet<Teacher> Teachers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
