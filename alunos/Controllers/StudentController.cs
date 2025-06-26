@@ -1,5 +1,5 @@
-﻿using alunos.Model;
-using alunos.Model.Class;
+﻿using alunos.Model.Class;
+using alunos.Model.Students;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +21,7 @@ namespace alunos.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Student>> createStudent([FromBody] CreateStudentDTO createStudentDTO)
+        public async Task<ActionResult<Student>> CreateStudent([FromBody] CreateStudentDTO createStudentDTO)
         {
             var hasWithSameName = await _classDBContext.Students.AnyAsync(student => student.Name == createStudentDTO.name);
             if (hasWithSameName)

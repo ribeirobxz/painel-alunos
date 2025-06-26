@@ -8,18 +8,14 @@ using WebApplication3.context;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// Add services to the container.
 builder.Services.AddDbContext<ClassDBContext>(options =>
     options.UseInMemoryDatabase("CodigoKidDB"));
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddControllers()
+    .AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
-// Program.cs
 
-// ... outras configurações como AddControllers, AddAuthentication, etc.
-
-// Localize esta linha no seu código
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -75,7 +71,6 @@ builder.Services.AddCors();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

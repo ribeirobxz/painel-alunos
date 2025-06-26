@@ -4,6 +4,7 @@ using alunos.Model.Class;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApplication3.context;
@@ -34,6 +35,11 @@ namespace WebApplication3.Controllers
                     RemainingTimeInSeconds = (c.StartTime + 7200000 - DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()) / 1000
                 })
                 .ToListAsync();
+            if(classes.IsNullOrEmpty() || !classes.Any())
+            {
+                return NotFound(new { error = "Nenhuma aula em andamento." });
+            }
+
             return Ok(classes);
         }
 
@@ -51,7 +57,7 @@ namespace WebApplication3.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<StudentClass>> createClass(CreateStudentClassDTO createStudentClassDTO)
+        public async Task<ActionResult<StudentClass>> CreateClass(CreateStudentClassDTO createStudentClassDTO)
         {
             var student = await _classDBContext.Students.FindAsync(createStudentClassDTO.studentId);
             if(student == null)

@@ -1,4 +1,4 @@
-﻿using alunos.Model;
+﻿using alunos.Model.Teacher;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -27,7 +27,7 @@ namespace alunos.Service
                 {
                 new Claim(ClaimTypes.NameIdentifier, teacher.Id.ToString()),
                 new Claim(ClaimTypes.Email, teacher.Name),
-                new Claim("role", "professor") 
+                new Claim(ClaimTypes.Role, "professor") 
             }),
                 Expires = DateTime.UtcNow.AddHours(8),
                 Issuer = _configuration["Jwt:Issuer"],

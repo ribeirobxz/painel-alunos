@@ -1,7 +1,8 @@
-﻿using alunos.Model;
+﻿using alunos.Model.Teacher;
 using alunos.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using WebApplication3.context;
 
 namespace alunos.Controllers
@@ -23,13 +24,18 @@ namespace alunos.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<Teacher>> RequestLogin([FromBody] TeacherRequestLoginDTO teacherRequestLoginDTO)
         {
-            var teacher = await _classDBContext.Teachers.FirstAsync(s => s.Name == teacherRequestLoginDTO.name);
+            if(teacherRequestLoginDTO.Name.IsNullOrEmpty() || teacherRequestLoginDTO.Password.IsNullOrEmpty())
+            {
+                return BadRequest(new { message = "Credenciais inválidas." });
+            }
+
+            var teacher = await _classDBContext.Teachers.FirstOrDefaultAsync(s => s.Name == teacherRequestLoginDTO.Name);
             if(teacher == null)
             {
                 return Unauthorized(new { message = "Credenciais inválidas." });
             }
 
-            if(!BCrypt.Net.BCrypt.Verify(teacherRequestLoginDTO.password, teacher.Password))
+            if(!BCrypt.Net.BCrypt.Verify(teacherRequestLoginDTO.Password, teacher.Password))
             {
                 return Unauthorized(new { message = "Credenciais inválidas." });
             }

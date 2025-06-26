@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace alunos.Model
+namespace alunos.Model.Teacher
 {
     public class Teacher
     {
@@ -16,14 +16,14 @@ namespace alunos.Model
         [Required]
         public string Password { get; set; }
 
-        public DateTime createdAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public Teacher(string Name, string Password)
         {
             this.Name = Name;
             this.Password = Password;
 
-            this.createdAt = DateTime.Now;
+            CreatedAt = DateTime.Now;
         }
     }
 }

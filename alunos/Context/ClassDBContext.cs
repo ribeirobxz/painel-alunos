@@ -1,6 +1,9 @@
-﻿using alunos.Model;
-using alunos.Model.Class;
+﻿using alunos.Model.Class;
+using alunos.Model.Course;
+using alunos.Model.Students;
+using alunos.Model.Teacher;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace WebApplication3.context
 {
@@ -12,16 +15,33 @@ namespace WebApplication3.context
         public DbSet<StudentClass> classes { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
+        public DbSet<Course> Courses { get; set; }
+        public DbSet<CourseClass> CourseClasses { get; set; }
+        public DbSet<CourseClassStep> CourseClassSteps { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Se o DbContext ainda não foi configurado (o que acontece quando 'dotnet ef' o chama),
-            // configure-o para usar SQLite.
             if (!optionsBuilder.IsConfigured)
             {
-                // Isso cria um arquivo de banco de dados SQLite na pasta do projeto.
                 optionsBuilder.UseSqlite("DataSource=migrations_temp.db");
             }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Student>(builder =>
+            {
+                builder.Property(s => s.CoursesClass).HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                    v => JsonSerializer.Deserialize<Dictionary<int, int>>(v, (JsonSerializerOptions)null)
+                );
+                builder.Property(s => s.CoursesClassStep).HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                    v => JsonSerializer.Deserialize<Dictionary<int, int>>(v, (JsonSerializerOptions)null)
+                );
+            });
         }
     }
 }

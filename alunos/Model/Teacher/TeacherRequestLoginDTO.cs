@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace alunos.Model
+namespace alunos.Model.Teacher
 {
     public class TeacherRequestLoginDTO
     {
 
         [Required(ErrorMessage = "O usuário é obrigatório.")]
-        public string name { get; set; }
+        public string Name { get; set; }
 
         [Required(ErrorMessage = "A senha é obrigatório.")]
-        public string password { get; set; }
+        public string Password { get; set; }
     }
 }
