@@ -83,15 +83,17 @@ namespace alunos.Controllers
         [HttpGet("{classId}/steps")]
         public async Task<ActionResult<IEnumerable<CourseClassStepController>>> GetCourseClassSteps(int classId)
         {
-            var courseClassSteps = await _classDBContext.CourseClassSteps
-                .Where(courseClassStep => courseClassStep.CourseClassId == classId)
-                .ToListAsync();
-            if (courseClassSteps.IsNullOrEmpty() || !courseClassSteps.Any())
+            var courseClassExists = await _classDBContext.CourseClasses.AnyAsync(c => c.Id == classId);
+            if (!courseClassExists)
             {
-                return NotFound(new { message = "Nenhuma etapa de aula dessa aula foi encontrada." });
+                return NotFound($"A aula com o ID {classId} não foi encontrada.");
             }
 
-            return Ok(courseClassSteps);
+            var steps = await _classDBContext.CourseClassSteps
+                                      .Where(step => step.CourseClassId == classId)
+                                      .ToListAsync();
+
+            return Ok(steps);
         }
 
         [HttpGet]

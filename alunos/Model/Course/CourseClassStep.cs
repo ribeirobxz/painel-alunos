@@ -14,5 +14,7 @@ namespace alunos.Model.Course
          
         [ForeignKey("CourseClassId")]
         public virtual CourseClass CourseClass { get; set; }
+
+        public string Name { get; set; }
     }
 }

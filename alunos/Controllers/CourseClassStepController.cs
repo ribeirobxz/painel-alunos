@@ -35,12 +35,38 @@ namespace alunos.Controllers
 
             var courseClassStep = new CourseClassStep
             {
-                CourseClassId = createCourseClassStepModel.CourseClassId
+                CourseClassId = createCourseClassStepModel.CourseClassId,
+                Name = createCourseClassStepModel.Name
             };
             await classDBContext.CourseClassSteps.AddAsync(courseClassStep);
             await classDBContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetCourseClassStep), new { stepId = courseClassStep.Id }, courseClassStep);
+        }
+
+        [HttpPatch("{stepId}")]
+        public async Task<IActionResult> UpdateCourse(int stepId, [FromBody] JsonPatchDocument<CourseClassStep> patchDoc)
+        {
+            if (patchDoc == null)
+            {
+                return BadRequest(new { message = "Documento de patch inválido." });
+            }
+
+            var stepToUpdate = await classDBContext.CourseClassSteps.FindAsync(stepId);
+            if (stepToUpdate == null)
+            {
+                return NotFound(new { message = "Curso não encontrado com esse Id." });
+            }
+
+            patchDoc.ApplyTo(stepToUpdate, ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await classDBContext.SaveChangesAsync();
+
+            return Ok(new { message = $"As informações do passo a passo {stepId} foram atualizadas" });
         }
 
         [HttpGet("{stepId}")]

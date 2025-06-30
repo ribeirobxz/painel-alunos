@@ -36,7 +36,8 @@ namespace alunos.Controllers
             var course = new Course
             {
                 Name = createCourseModel.Name,
-                Description = createCourseModel.Description
+                Description = createCourseModel.Description,
+                IconUrl = createCourseModel.IconUrl
             };
             await _classDBContext.Courses.AddAsync(course);
             await _classDBContext.SaveChangesAsync();

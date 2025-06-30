@@ -67,7 +67,19 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
-builder.Services.AddCors();
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:3000", // Porta padrão do Create React App
+                                             "http://localhost:5173") // Porta padrão do Vite
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
 
 var app = builder.Build();
 

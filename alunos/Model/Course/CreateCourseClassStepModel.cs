@@ -4,5 +4,6 @@
     {
 
         public int CourseClassId { get; set; }
+        public string Name { get; set; }
     }
 }
