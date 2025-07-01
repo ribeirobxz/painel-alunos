@@ -3,6 +3,6 @@
     public class CreateCourseClassModel
     {
 
-        public int CourseId { get; set; }
+        public Guid CourseId { get; set; }
     }
 }

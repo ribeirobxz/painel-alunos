@@ -22,10 +22,6 @@ namespace alunos.Controllers
         [HttpPost]
         public async Task<ActionResult<CourseClassStep>> CreateCourseClassStep([FromBody] CreateCourseClassStepModel createCourseClassStepModel)
         {
-            if (createCourseClassStepModel.CourseClassId <= 0)
-            {
-                return BadRequest(new { message = "O ID da aula do curso não pode ser menor ou igual a zero." });
-            }
 
             var courseClass = await classDBContext.CourseClasses.FindAsync(createCourseClassStepModel.CourseClassId);
             if (courseClass == null)
@@ -70,7 +66,7 @@ namespace alunos.Controllers
         }
 
         [HttpGet("{stepId}")]
-        public async Task<ActionResult<CourseClassStep>> GetCourseClassStep(int stepId)
+        public async Task<ActionResult<CourseClassStep>> GetCourseClassStep(Guid stepId)
         {
             var courseClassStep = await classDBContext.CourseClassSteps.FindAsync(stepId);
             if (courseClassStep == null)

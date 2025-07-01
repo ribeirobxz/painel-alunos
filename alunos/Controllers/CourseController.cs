@@ -83,7 +83,7 @@ namespace alunos.Controllers
         }
 
         [HttpGet("{courseId}/classes")]
-        public async Task<ActionResult<IEnumerable<CourseClass>>> GetCourseClasses(int courseId)
+        public async Task<ActionResult<IEnumerable<CourseClass>>> GetCourseClasses(Guid courseId)
         {
             var courseClasses = await _classDBContext.CourseClasses
                 .Where(course => course.CourseId == courseId)

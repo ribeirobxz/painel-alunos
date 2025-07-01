@@ -21,30 +21,6 @@ namespace alunos.Controllers
             _tokenService = tokenService;
         }
 
-        [HttpPost("login")]
-        public async Task<ActionResult<Teacher>> RequestLogin([FromBody] TeacherRequestLoginDTO teacherRequestLoginDTO)
-        {
-            if(teacherRequestLoginDTO.Name.IsNullOrEmpty() || teacherRequestLoginDTO.Password.IsNullOrEmpty())
-            {
-                return BadRequest(new { message = "Credenciais inválidas." });
-            }
-
-            var teacher = await _classDBContext.Teachers.FirstOrDefaultAsync(s => s.Name == teacherRequestLoginDTO.Name);
-            if(teacher == null)
-            {
-                return Unauthorized(new { message = "Credenciais inválidas." });
-            }
-
-            if(!BCrypt.Net.BCrypt.Verify(teacherRequestLoginDTO.Password, teacher.Password))
-            {
-                return Unauthorized(new { message = "Credenciais inválidas." });
-            }
-
-            var token = _tokenService.GenerateToken(teacher);
-            return Ok(new TeacherResponseLoginDTO { Token = token });
-        }
-
-
         [HttpPost]
         public async Task<ActionResult<Teacher>> CreateTeacher(CreateTeacherModel createTeacherModel)
         {

@@ -8,9 +8,9 @@ namespace alunos.Model.Class
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
-        public int StudentId { get; set; }
+        public Guid StudentId { get; set; }
 
         [ForeignKey("StudentId")]
         public virtual Student Student { get; set; }
@@ -21,7 +21,7 @@ namespace alunos.Model.Class
 
         public StudentClass() { } 
 
-        public StudentClass(int studentId, string dayOfWeek)
+        public StudentClass(Guid studentId, string dayOfWeek)
         {
             StudentId = studentId;
             DayOfWeek = dayOfWeek;

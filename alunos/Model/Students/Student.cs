@@ -7,10 +7,12 @@ namespace alunos.Model.Students
     {
         [Key] 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public string Name { get; set; }
+        [Required]
+        public string PasswordHash { get; set; }
 
         public string[] DaysOfWeek { get; set; }
         public int[] Courses { get; set; }
@@ -21,9 +23,11 @@ namespace alunos.Model.Students
 
         public Student() { }
 
-        public Student(string name, string[] daysOfWeek)
+        public Student(string name, string passwordHash, string[] daysOfWeek)
         {
             Name = name;
+            PasswordHash = passwordHash;
+
             DaysOfWeek = daysOfWeek;
             Courses = new int[100];
 

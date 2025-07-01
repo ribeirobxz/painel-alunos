@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace alunos.Model.Teacher
+namespace alunos.Model.Login
 {
-    public class TeacherRequestLoginDTO
+    public class RequestLoginDTO
     {
 
         [Required(ErrorMessage = "O usuário é obrigatório.")]

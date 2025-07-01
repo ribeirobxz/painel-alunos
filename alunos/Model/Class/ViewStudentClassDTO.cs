@@ -2,7 +2,7 @@
 {
     public class ViewStudentClassDTO
     {
-        public int Id { get; set; } 
+        public Guid Id { get; set; } 
         public string StudentName { get; set; }
         public string DayOfWeek { get; set; }
         public long RemainingTimeInSeconds { get; set; }

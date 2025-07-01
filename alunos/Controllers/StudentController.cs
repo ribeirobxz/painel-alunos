@@ -1,8 +1,13 @@
-﻿using alunos.Model.Class;
+﻿using System.Security.Claims;
+using alunos.Model.Class;
+using alunos.Model.Login;
 using alunos.Model.Students;
+using alunos.Model.Teacher;
+using alunos.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using WebApplication3.context;
 
 namespace alunos.Controllers
@@ -13,23 +18,60 @@ namespace alunos.Controllers
     {
 
         private readonly ClassDBContext _classDBContext;
+        private readonly TokenService _tokenService;
 
-        public StudentController(ClassDBContext classDBContext)
+        public StudentController(ClassDBContext classDBContext, TokenService tokenService)
         {
             _classDBContext = classDBContext;
+            _tokenService = tokenService;
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult<Student>> GetYourself()
+        {
+            var idString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(idString.IsNullOrEmpty())
+            {
+                return Unauthorized("ID do estudante não foi encontrado no token.");
+            }
+
+            if (!Guid.TryParse(idString, out var studentId))
+            {
+                return BadRequest("ID do usuário no formato inválido.");
+            }
+
+            var student = await _classDBContext.Students.FindAsync(studentId);
+            if (student == null)
+            {
+                return NotFound("Estudante não encontrado.");
+            }
+
+            var studentDTO = new StudentDTO(
+                studentId,
+                student.Name,
+                student.DaysOfWeek,
+                student.Courses,
+                student.CoursesClass,
+                student.CoursesClassStep,
+                student.RegisteredAt
+                );
+            return Ok(studentDTO);
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<ActionResult<Student>> CreateStudent([FromBody] CreateStudentDTO createStudentDTO)
         {
-            var hasWithSameName = await _classDBContext.Students.AnyAsync(student => student.Name == createStudentDTO.name);
+            var hasWithSameName = await _classDBContext.Students.AnyAsync(student => student.Name == createStudentDTO.Name);
             if (hasWithSameName)
             {
                 return BadRequest(new { error = "Já existe um estudante registrado com esse nome" });
             }
 
-            var student = new Student(createStudentDTO.name, createStudentDTO.daysOfWeek);
+            var salt = BCrypt.Net.BCrypt.GenerateSalt(10);
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(createStudentDTO.Password, salt);
+
+            var student = new Student(createStudentDTO.Name, passwordHash, createStudentDTO.DaysOfWeek);
             await _classDBContext.Students.AddAsync(student);
             await _classDBContext.SaveChangesAsync();
 

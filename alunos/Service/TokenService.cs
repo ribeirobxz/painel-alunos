@@ -1,4 +1,5 @@
-﻿using alunos.Model.Teacher;
+﻿using alunos.Model.Students;
+using alunos.Model.Teacher;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,7 +17,7 @@ namespace alunos.Service
             _configuration = configuration;
         }
 
-        public string GenerateToken(Teacher teacher)
+        public string GenerateToken(Guid id, string role)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
@@ -25,9 +26,8 @@ namespace alunos.Service
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                new Claim(ClaimTypes.NameIdentifier, teacher.Id.ToString()),
-                new Claim(ClaimTypes.Email, teacher.Name),
-                new Claim(ClaimTypes.Role, "professor") 
+                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+                new Claim(ClaimTypes.Role, role) 
             }),
                 Expires = DateTime.UtcNow.AddHours(8),
                 Issuer = _configuration["Jwt:Issuer"],

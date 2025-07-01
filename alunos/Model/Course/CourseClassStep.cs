@@ -8,9 +8,9 @@ namespace alunos.Model.Course
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
-        public int CourseClassId { get; set; }
+        public Guid CourseClassId { get; set; }
          
         [ForeignKey("CourseClassId")]
         public virtual CourseClass CourseClass { get; set; }

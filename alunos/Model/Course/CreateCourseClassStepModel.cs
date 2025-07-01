@@ -3,7 +3,7 @@
     public class CreateCourseClassStepModel
     {
 
-        public int CourseClassId { get; set; }
+        public Guid CourseClassId { get; set; }
         public string Name { get; set; }
     }
 }

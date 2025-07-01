@@ -8,20 +8,20 @@ namespace alunos.Model.Teacher
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public string Name { get; set; }
 
         [Required]
-        public string Password { get; set; }
+        public string PasswordHash { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
-        public Teacher(string Name, string Password)
+        public Teacher(string Name, string PasswordHash)
         {
             this.Name = Name;
-            this.Password = Password;
+            this.PasswordHash = PasswordHash;
 
             CreatedAt = DateTime.Now;
         }
