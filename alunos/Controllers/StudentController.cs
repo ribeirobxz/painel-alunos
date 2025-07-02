@@ -1,10 +1,12 @@
 ﻿using System.Security.Claims;
 using alunos.Model.Class;
+using alunos.Model.Course;
 using alunos.Model.Login;
 using alunos.Model.Students;
 using alunos.Model.Teacher;
 using alunos.Service;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,45 +20,10 @@ namespace alunos.Controllers
     {
 
         private readonly ClassDBContext _classDBContext;
-        private readonly TokenService _tokenService;
 
-        public StudentController(ClassDBContext classDBContext, TokenService tokenService)
+        public StudentController(ClassDBContext classDBContext)
         {
             _classDBContext = classDBContext;
-            _tokenService = tokenService;
-        }
-
-        [HttpGet("me")]
-        [Authorize]
-        public async Task<ActionResult<Student>> GetYourself()
-        {
-            var idString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(idString.IsNullOrEmpty())
-            {
-                return Unauthorized("ID do estudante não foi encontrado no token.");
-            }
-
-            if (!Guid.TryParse(idString, out var studentId))
-            {
-                return BadRequest("ID do usuário no formato inválido.");
-            }
-
-            var student = await _classDBContext.Students.FindAsync(studentId);
-            if (student == null)
-            {
-                return NotFound("Estudante não encontrado.");
-            }
-
-            var studentDTO = new StudentDTO(
-                studentId,
-                student.Name,
-                student.DaysOfWeek,
-                student.Courses,
-                student.CoursesClass,
-                student.CoursesClassStep,
-                student.RegisteredAt
-                );
-            return Ok(studentDTO);
         }
 
         [HttpPost]
@@ -80,6 +47,31 @@ namespace alunos.Controllers
                 new { studentId = student.Id },
                 student                
             );
+        }
+
+        [HttpPatch("{studentId}")]
+        public async Task<IActionResult> UpdateCourseClass(Guid studentId, [FromBody] JsonPatchDocument<Student> patchDoc)
+        {
+            if (patchDoc == null)
+            {
+                return BadRequest(new { message = "Documento de patch inválido." });
+            }
+
+            var studentToUpdate = await _classDBContext.Students.FindAsync(studentId);
+            if (studentToUpdate == null)
+            {
+                return NotFound(new { message = "Estudante não encontrado com esse Id." });
+            }
+
+            patchDoc.ApplyTo(studentToUpdate, ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _classDBContext.SaveChangesAsync();
+
+            return Ok(new { message = $"As informações do estudante {studentToUpdate.Name} foram atualizadas" });
         }
 
         [HttpDelete("{studentId}")]

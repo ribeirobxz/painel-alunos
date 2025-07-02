@@ -26,12 +26,11 @@ namespace alunos.Controllers
             _tokenService = tokenService;
         }
 
-        [HttpGet("login")]
-        public async Task<ActionResult<ResponseLoginDTO>> RequestLogin(RequestLoginDTO requestLoginDTO)
+        [HttpPost("login")]
+        public async Task<ActionResult<ResponseLoginDTO>> RequestLogin([FromBody] RequestLoginDTO requestLoginDTO)
         {
 
             var student = await _classDbContext.Students.FirstOrDefaultAsync(s => s.Name == requestLoginDTO.Name);
-
             if (student != null)
             {
                 if (BCrypt.Net.BCrypt.Verify(requestLoginDTO.Password, student.PasswordHash))
@@ -46,7 +45,7 @@ namespace alunos.Controllers
             {
                 if (BCrypt.Net.BCrypt.Verify(requestLoginDTO.Password, teacher.PasswordHash))
                 {
-                    var token = _tokenService.GenerateToken(student.Id, "teacher");
+                    var token = _tokenService.GenerateToken(teacher.Id, "teacher");
                     return Ok(new ResponseLoginDTO { Token = token });
                 }
             }

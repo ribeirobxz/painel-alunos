@@ -13,12 +13,10 @@ namespace alunos.Controllers
     {
 
         private readonly ClassDBContext _classDBContext;
-        private readonly TokenService _tokenService;
 
-        public TeacherController(ClassDBContext classDBContext, TokenService tokenService)
+        public TeacherController(ClassDBContext classDBContext)
         {
             _classDBContext = classDBContext;
-            _tokenService = tokenService;
         }
 
         [HttpPost]
