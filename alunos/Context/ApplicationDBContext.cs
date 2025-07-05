@@ -7,10 +7,10 @@ using System.Text.Json;
 
 namespace WebApplication3.context
 {
-    public class ClassDBContext : DbContext
+    public class ApplicationDBContext : DbContext
     {
 
-        public ClassDBContext(DbContextOptions<ClassDBContext> options) : base(options) { }
+        public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
 
         public DbSet<StudentClass> classes { get; set; }
         public DbSet<Student> Students { get; set; }

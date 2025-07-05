@@ -17,12 +17,12 @@ namespace alunos.Controllers
     public class AuthController : ControllerBase
     {
 
-        private readonly ClassDBContext _classDbContext;
+        private readonly ApplicationDBContext _applicationDBContext;
         private readonly TokenService _tokenService;
 
-        public AuthController(ClassDBContext classDbContext, TokenService tokenService)
+        public AuthController(ApplicationDBContext classDbContext, TokenService tokenService)
         {
-            _classDbContext = classDbContext;
+            _applicationDBContext = classDbContext;
             _tokenService = tokenService;
         }
 
@@ -30,7 +30,7 @@ namespace alunos.Controllers
         public async Task<ActionResult<ResponseLoginDTO>> RequestLogin([FromBody] RequestLoginDTO requestLoginDTO)
         {
 
-            var student = await _classDbContext.Students.FirstOrDefaultAsync(s => s.Name == requestLoginDTO.Name);
+            var student = await _applicationDBContext.Students.FirstOrDefaultAsync(s => s.Name == requestLoginDTO.Name);
             if (student != null)
             {
                 if (BCrypt.Net.BCrypt.Verify(requestLoginDTO.Password, student.PasswordHash))
@@ -40,7 +40,7 @@ namespace alunos.Controllers
                 }
             }
 
-            var teacher = await _classDbContext.Teachers.FirstOrDefaultAsync(t => t.Name == requestLoginDTO.Name);
+            var teacher = await _applicationDBContext.Teachers.FirstOrDefaultAsync(t => t.Name == requestLoginDTO.Name);
             if (teacher != null)
             {
                 if (BCrypt.Net.BCrypt.Verify(requestLoginDTO.Password, teacher.PasswordHash))
@@ -68,7 +68,7 @@ namespace alunos.Controllers
                 return BadRequest("ID do usuário no formato inválido.");
             }
 
-            var student = await _classDbContext.Students.FindAsync(userId);
+            var student = await _applicationDBContext.Students.FindAsync(userId);
             if(student != null)
             {
                 var studentDTO = new StudentDTO(
@@ -83,7 +83,7 @@ namespace alunos.Controllers
                 return Ok(studentDTO);
             }
 
-            var teacher = await _classDbContext.Teachers.FindAsync(userId);
+            var teacher = await _applicationDBContext.Teachers.FindAsync(userId);
             if (teacher != null)
             {
                 var teacherDTO = new TeacherDTO(

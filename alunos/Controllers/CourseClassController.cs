@@ -12,18 +12,18 @@ namespace alunos.Controllers
     public class CourseClassController : ControllerBase
     {
 
-        private readonly ClassDBContext _classDBContext;
+        private readonly ApplicationDBContext _applicationDBContext;
 
-        public CourseClassController(ClassDBContext classDBContext)
+        public CourseClassController(ApplicationDBContext classDBContext)
         {
-            _classDBContext = classDBContext;
+            _applicationDBContext = classDBContext;
         }
 
         [HttpPost]
         public async Task<ActionResult<CourseClass>> CreateCourseClass([FromBody] CreateCourseClassModel createCourseClassModel)
         {
             
-            var course = await _classDBContext.Courses.FindAsync(createCourseClassModel.CourseId);
+            var course = await _applicationDBContext.Courses.FindAsync(createCourseClassModel.CourseId);
             if (course == null)
             {
                 return NotFound(new { message = "Nenhum curso foi encontrado com esse ID." });
@@ -33,8 +33,8 @@ namespace alunos.Controllers
             {
                 CourseId = createCourseClassModel.CourseId
             };
-            await _classDBContext.CourseClasses.AddAsync(courseClass);
-            await _classDBContext.SaveChangesAsync();
+            await _applicationDBContext.CourseClasses.AddAsync(courseClass);
+            await _applicationDBContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetCourseClass), new { classId = courseClass.Id }, courseClass);
         }
@@ -47,7 +47,7 @@ namespace alunos.Controllers
                 return BadRequest(new { message = "Documento de patch inválido." });
             }
 
-            var courseClassToUpdate = await _classDBContext.CourseClasses.FindAsync(classId);
+            var courseClassToUpdate = await _applicationDBContext.CourseClasses.FindAsync(classId);
             if (courseClassToUpdate == null)
             {
                 return NotFound(new { message = "Aula não encontrada com esse Id." });
@@ -59,7 +59,7 @@ namespace alunos.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _classDBContext.SaveChangesAsync();
+            await _applicationDBContext.SaveChangesAsync();
 
             return Ok(new { message = $"As informações da aula {classId} foram atualizadas" });
         }
@@ -67,7 +67,7 @@ namespace alunos.Controllers
         [HttpGet("{classId}")]
         public async Task<ActionResult<CourseClass>> GetCourseClass(int classId)
         {
-            var courseClass = await _classDBContext.CourseClasses.FindAsync(classId);
+            var courseClass = await _applicationDBContext.CourseClasses.FindAsync(classId);
             if (courseClass == null)
             {
                 return NotFound(new { message = "Nenhuma aula de curso encontrada com esse ID." });
@@ -79,13 +79,13 @@ namespace alunos.Controllers
         [HttpGet("{classId}/steps")]
         public async Task<ActionResult<IEnumerable<CourseClassStepController>>> GetCourseClassSteps(Guid classId)
         {
-            var courseClassExists = await _classDBContext.CourseClasses.AnyAsync(c => c.Id == classId);
+            var courseClassExists = await _applicationDBContext.CourseClasses.AnyAsync(c => c.Id == classId);
             if (!courseClassExists)
             {
                 return NotFound($"A aula com o ID {classId} não foi encontrada.");
             }
 
-            var steps = await _classDBContext.CourseClassSteps
+            var steps = await _applicationDBContext.CourseClassSteps
                                       .Where(step => step.CourseClassId == classId)
                                       .ToListAsync();
 
@@ -95,7 +95,7 @@ namespace alunos.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CourseClass>>> GetAllCourseClass()
         {
-            var courseClasses = await _classDBContext.CourseClasses.ToListAsync();
+            var courseClasses = await _applicationDBContext.CourseClasses.ToListAsync();
             if (courseClasses.IsNullOrEmpty() || !courseClasses.Any())
             {
                 return NotFound(new { message = "Nenhuma aula de curso encontrada." });
@@ -107,14 +107,14 @@ namespace alunos.Controllers
         [HttpDelete("{classId}")]
         public async Task<ActionResult<CourseClass>> DeleteCourseClass(int classId)
         {
-            var courseClass = await _classDBContext.CourseClasses.FindAsync(classId);
+            var courseClass = await _applicationDBContext.CourseClasses.FindAsync(classId);
             if (courseClass == null)
             {
                 return NotFound(new { message = "Nenhuma aula de curso foi encontrada com esse ID." });
             }
 
-            _classDBContext.CourseClasses.Remove(courseClass);
-            await _classDBContext.SaveChangesAsync();
+            _applicationDBContext.CourseClasses.Remove(courseClass);
+            await _applicationDBContext.SaveChangesAsync();
 
             return Ok(new { message = $"Aula {classId} do curso {courseClass.CourseId} foi deletada com sucesso." });
         }

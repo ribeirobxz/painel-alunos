@@ -16,17 +16,17 @@ namespace WebApplication3.Controllers
     public class StudentClassController : ControllerBase
     {
 
-        private readonly ClassDBContext _classDBContext;
+        private readonly ApplicationDBContext _applicationDBContext;
 
-        public StudentClassController(ClassDBContext classDBContext)
+        public StudentClassController(ApplicationDBContext classDBContext)
         {
-            _classDBContext = classDBContext;
+            _applicationDBContext = classDBContext;
         }
 
         [HttpGet]
         public async Task<ActionResult<StudentClass>> GetAllClasses()
         {
-            var classes = await _classDBContext.classes
+            var classes = await _applicationDBContext.classes
                 .Select(c => new ViewStudentClassDTO
                 {
                     Id = c.Id,
@@ -45,7 +45,7 @@ namespace WebApplication3.Controllers
 
         [HttpGet("{studentName}")]
         public async Task<ActionResult<StudentClass>> GetClass(string studentName) {
-            var studentClass = await _classDBContext.classes.FindAsync(studentName);
+            var studentClass = await _applicationDBContext.classes.FindAsync(studentName);
             if(studentClass == null)
             {
                 return NotFound(new { error = "Não foi possível encontrar nenhuma aula para esse aluno"});
@@ -59,21 +59,21 @@ namespace WebApplication3.Controllers
         [Authorize]
         public async Task<ActionResult<StudentClass>> CreateClass(CreateStudentClassDTO createStudentClassDTO)
         {
-            var student = await _classDBContext.Students.FindAsync(createStudentClassDTO.studentId);
+            var student = await _applicationDBContext.Students.FindAsync(createStudentClassDTO.studentId);
             if(student == null)
             {
                 return NotFound(new { error = "Não foi possível encontrar nenhum aluno com esse nome" });
             }
 
             var studentClass = new StudentClass(student.Id, createStudentClassDTO.dayOfWeek);
-            var alreadyHasClass = _classDBContext.classes.Any(c => c.StudentId == createStudentClassDTO.studentId);
+            var alreadyHasClass = _applicationDBContext.classes.Any(c => c.StudentId == createStudentClassDTO.studentId);
             if(alreadyHasClass)
             {
                 return BadRequest(new { error = "Já existe uma aula para esse aluno" });
             }
 
-            await _classDBContext.classes.AddAsync(studentClass);
-            await _classDBContext.SaveChangesAsync();
+            await _applicationDBContext.classes.AddAsync(studentClass);
+            await _applicationDBContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetClass), new { studentName = studentClass.Student.Name }, studentClass);
         }

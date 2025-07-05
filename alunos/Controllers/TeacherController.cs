@@ -12,17 +12,17 @@ namespace alunos.Controllers
     public class TeacherController : ControllerBase
     {
 
-        private readonly ClassDBContext _classDBContext;
+        private readonly ApplicationDBContext _applicationDBContext;
 
-        public TeacherController(ClassDBContext classDBContext)
+        public TeacherController(ApplicationDBContext classDBContext)
         {
-            _classDBContext = classDBContext;
+            _applicationDBContext = classDBContext;
         }
 
         [HttpPost]
         public async Task<ActionResult<Teacher>> CreateTeacher(CreateTeacherModel createTeacherModel)
         {
-            var hasWithSameName = await _classDBContext.Teachers.AnyAsync(teacher => teacher.Name == createTeacherModel.Name);
+            var hasWithSameName = await _applicationDBContext.Teachers.AnyAsync(teacher => teacher.Name == createTeacherModel.Name);
             if(hasWithSameName)
             {
                 return BadRequest(new { message = "Já possui um professor com esse usuário." });
@@ -32,8 +32,8 @@ namespace alunos.Controllers
             var passwordHash = BCrypt.Net.BCrypt.HashPassword(createTeacherModel.Password, salt);
 
             var teacher = new Teacher(createTeacherModel.Name, passwordHash);
-            await _classDBContext.AddAsync(teacher);
-            await _classDBContext.SaveChangesAsync();
+            await _applicationDBContext.AddAsync(teacher);
+            await _applicationDBContext.SaveChangesAsync();
 
             return CreatedAtAction(
                 nameof(GetTeacher),
@@ -45,7 +45,7 @@ namespace alunos.Controllers
         [HttpGet("{teacherId}")]
         public async Task<ActionResult<Teacher>> GetTeacher(int teacherId)
         {
-            var teacher = await _classDBContext.Teachers.FindAsync(teacherId);
+            var teacher = await _applicationDBContext.Teachers.FindAsync(teacherId);
             if(teacher == null)
             {
                 return NotFound(new { message = "Nenhum professor foi encontrado com esse Id." });
@@ -57,14 +57,14 @@ namespace alunos.Controllers
         [HttpDelete("{teacherId}")]
         public async Task<ActionResult<Teacher>> DeleteTeacher(int teacherId)
         {
-            var teacher = await _classDBContext.Teachers.FindAsync(teacherId);
+            var teacher = await _applicationDBContext.Teachers.FindAsync(teacherId);
             if (teacher == null)
             {
                 return NotFound(new { message = "Nenhum professor foi encontrado com esse Id." });
             }
 
-            _classDBContext.Teachers.Remove(teacher);
-            await _classDBContext.SaveChangesAsync();
+            _applicationDBContext.Teachers.Remove(teacher);
+            await _applicationDBContext.SaveChangesAsync();
 
             return Ok(new { message = "Professor deletado com sucesso." });
         }

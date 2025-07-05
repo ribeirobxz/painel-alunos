@@ -12,18 +12,18 @@ namespace alunos.Controllers
     public class CourseClassStepController : ControllerBase
     {
 
-        private readonly ClassDBContext classDBContext;
+        private readonly ApplicationDBContext _applicationDBContext;
 
-        public CourseClassStepController(ClassDBContext classDBContext)
+        public CourseClassStepController(ApplicationDBContext classDBContext)
         {
-            this.classDBContext = classDBContext;
+            this._applicationDBContext = classDBContext;
         }
 
         [HttpPost]
         public async Task<ActionResult<CourseClassStep>> CreateCourseClassStep([FromBody] CreateCourseClassStepModel createCourseClassStepModel)
         {
 
-            var courseClass = await classDBContext.CourseClasses.FindAsync(createCourseClassStepModel.CourseClassId);
+            var courseClass = await _applicationDBContext.CourseClasses.FindAsync(createCourseClassStepModel.CourseClassId);
             if (courseClass == null)
             {
                 return NotFound(new { message = "Nenhuma aula de curso encontrada com esse ID." });
@@ -34,8 +34,8 @@ namespace alunos.Controllers
                 CourseClassId = createCourseClassStepModel.CourseClassId,
                 Name = createCourseClassStepModel.Name
             };
-            await classDBContext.CourseClassSteps.AddAsync(courseClassStep);
-            await classDBContext.SaveChangesAsync();
+            await _applicationDBContext.CourseClassSteps.AddAsync(courseClassStep);
+            await _applicationDBContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetCourseClassStep), new { stepId = courseClassStep.Id }, courseClassStep);
         }
@@ -48,7 +48,7 @@ namespace alunos.Controllers
                 return BadRequest(new { message = "Documento de patch inválido." });
             }
 
-            var stepToUpdate = await classDBContext.CourseClassSteps.FindAsync(stepId);
+            var stepToUpdate = await _applicationDBContext.CourseClassSteps.FindAsync(stepId);
             if (stepToUpdate == null)
             {
                 return NotFound(new { message = "Curso não encontrado com esse Id." });
@@ -60,7 +60,7 @@ namespace alunos.Controllers
                 return BadRequest(ModelState);
             }
 
-            await classDBContext.SaveChangesAsync();
+            await _applicationDBContext.SaveChangesAsync();
 
             return Ok(new { message = $"As informações do passo a passo {stepId} foram atualizadas" });
         }
@@ -68,7 +68,7 @@ namespace alunos.Controllers
         [HttpGet("{stepId}")]
         public async Task<ActionResult<CourseClassStep>> GetCourseClassStep(Guid stepId)
         {
-            var courseClassStep = await classDBContext.CourseClassSteps.FindAsync(stepId);
+            var courseClassStep = await _applicationDBContext.CourseClassSteps.FindAsync(stepId);
             if (courseClassStep == null)
             {
                 return NotFound(new { message = "Nenhuma etapa de aula de curso encontrada com esse ID." });
@@ -80,7 +80,7 @@ namespace alunos.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CourseClassStep>>> GetAllCourseClassSteps()
         {
-            var courseClassSteps = await classDBContext.CourseClassSteps.ToListAsync();
+            var courseClassSteps = await _applicationDBContext.CourseClassSteps.ToListAsync();
             if (courseClassSteps.IsNullOrEmpty() || !courseClassSteps.Any())
             {
                 return NotFound(new { message = "Nenhuma etapa de aula de curso encontrada." });

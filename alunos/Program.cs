@@ -8,7 +8,7 @@ using WebApplication3.context;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-builder.Services.AddDbContext<ClassDBContext>(options =>
+builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseInMemoryDatabase("CodigoKidDB"));
 
 builder.Services.AddControllers();

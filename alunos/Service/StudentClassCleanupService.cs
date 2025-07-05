@@ -19,7 +19,7 @@ namespace alunos.Service
             {
                 using (var scope = _scopeFactory.CreateScope())
                 {
-                    var databaseContext = scope.ServiceProvider.GetRequiredService<ClassDBContext>();
+                    var databaseContext = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
 
                     var finishedStudentClasses = databaseContext.classes
                         .Where(studentClass => (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - studentClass.StartTime) >= 10800000)
