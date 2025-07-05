@@ -56,7 +56,6 @@ namespace WebApplication3.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<ActionResult<StudentClass>> CreateClass(CreateStudentClassDTO createStudentClassDTO)
         {
             var student = await _applicationDBContext.Students.FindAsync(createStudentClassDTO.studentId);

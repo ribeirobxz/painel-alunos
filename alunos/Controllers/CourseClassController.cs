@@ -1,4 +1,5 @@
 ﻿using alunos.Model.Course;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ namespace alunos.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "teacher,student")]
     public class CourseClassController : ControllerBase
     {
 
