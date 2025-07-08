@@ -4,5 +4,6 @@
     {
 
         public Guid CourseId { get; set; }
+        public int ClassOrder { get; set; }
     }
 }

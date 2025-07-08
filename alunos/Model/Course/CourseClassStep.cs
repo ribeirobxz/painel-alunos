@@ -16,5 +16,6 @@ namespace alunos.Model.Course
         public virtual CourseClass CourseClass { get; set; }
 
         public string Name { get; set; }
+        public int ClassStepOrder { get; set; }
     }
 }
