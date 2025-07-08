@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using alunos.Model.Answer;
 using alunos.Model.Class;
 using alunos.Model.Course;
 using alunos.Model.Login;
@@ -29,86 +30,132 @@ namespace alunos.Controllers
         [HttpPost]
         public async Task<ActionResult<Student>> CreateStudent([FromBody] CreateStudentDTO createStudentDTO)
         {
-            var hasWithSameName = await _applicationDBContext.Students.AnyAsync(student => student.Name == createStudentDTO.Name);
-            if (hasWithSameName)
+            try
             {
-                return BadRequest(new { error = "Já existe um estudante registrado com esse nome" });
+                if (string.IsNullOrEmpty(createStudentDTO.Name) || string.IsNullOrEmpty(createStudentDTO.Password))
+                {
+                    return Ok(new Answer("O nome de usuário e a senha são obrigatórios.", 204));
+                }
+
+                var hasWithSameName = await _applicationDBContext.Students.AnyAsync(student => student.Name == createStudentDTO.Name);
+                if (hasWithSameName)
+                {
+                    return Ok(new Answer("Já existe um estudante registrado com esse nome", 204));
+                }
+
+                var salt = BCrypt.Net.BCrypt.GenerateSalt(10);
+                var passwordHash = BCrypt.Net.BCrypt.HashPassword(createStudentDTO.Password, salt);
+
+                var student = new Student(createStudentDTO.Name, passwordHash, createStudentDTO.DaysOfWeek);
+                await _applicationDBContext.Students.AddAsync(student);
+                await _applicationDBContext.SaveChangesAsync();
+
+                var studentDTO = new StudentDTO(student.Id, student.Name, student.DaysOfWeek, student.Courses, student.CoursesClass, student.CoursesClassStep, student.RegisteredAt);
+                var answer = new Answer<StudentDTO>(
+                    "Estudante criado com sucesso.",
+                    201,
+                    studentDTO
+                );
+                return CreatedAtAction(nameof(GetStudent), new { studentId = student.Id }, answer);
             }
-
-            var salt = BCrypt.Net.BCrypt.GenerateSalt(10);
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(createStudentDTO.Password, salt);
-
-            var student = new Student(createStudentDTO.Name, passwordHash, createStudentDTO.DaysOfWeek);
-            await _applicationDBContext.Students.AddAsync(student);
-            await _applicationDBContext.SaveChangesAsync();
-
-            return CreatedAtAction(
-                nameof(GetStudent),      
-                new { studentId = student.Id },
-                student                
-            );
+            catch (Exception e)
+            {
+                return BadRequest(new Answer(e.Message, 500));
+            }
         }
 
         [HttpPatch("{studentId}")]
         public async Task<IActionResult> UpdateCourseClass(Guid studentId, [FromBody] JsonPatchDocument<Student> patchDoc)
         {
-            if (patchDoc == null)
+            try
             {
-                return BadRequest(new { message = "Documento de patch inválido." });
-            }
+                if (patchDoc == null)
+                {
+                    return Ok(new Answer("Documento de patch inválido.", 204));
+                }
 
-            var studentToUpdate = await _applicationDBContext.Students.FindAsync(studentId);
-            if (studentToUpdate == null)
+                var student = await _applicationDBContext.Students.FindAsync(studentId);
+                if (student == null)
+                {
+                    return Ok(new Answer("Nenhum estudante encontrado com esse id.", 204));
+                }
+
+                patchDoc.ApplyTo(student, ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return Ok(new Answer("Nenhum estudante encontrado com esse id.", 204));
+                }
+
+                await _applicationDBContext.SaveChangesAsync();
+                return Ok(new Answer($"As informações do estudante {student.Name} foram atualizadas", 200));
+            }
+            catch (Exception e)
             {
-                return NotFound(new { message = "Estudante não encontrado com esse Id." });
+                return BadRequest(new Answer(e.Message, 500));
             }
-
-            patchDoc.ApplyTo(studentToUpdate, ModelState);
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            await _applicationDBContext.SaveChangesAsync();
-
-            return Ok(new { message = $"As informações do estudante {studentToUpdate.Name} foram atualizadas" });
         }
 
         [HttpDelete("{studentId}")]
         [Authorize]
-        public async Task<ActionResult<Student>> DeleteStudent(int studentId)
+        public async Task<ActionResult<Student>> DeleteStudent(Guid studentId)
         {
-            var student = await _applicationDBContext.Students.FindAsync(studentId);
-            if(student == null)
+            try
             {
-                return NotFound(new { message = "Nenhum estudante encontrado com esseId." });
+                var student = await _applicationDBContext.Students.FindAsync(studentId);
+                if (student == null)
+                {
+                    return Ok(new Answer("Nenhum estudante encontrado com esse id.", 204));
+                }
+
+                _applicationDBContext.Students.Remove(student);
+                await _applicationDBContext.SaveChangesAsync();
+
+                return Ok(new Answer("Estudante deletado com sucesso.", 200));
             }
-
-            _applicationDBContext.Students.Remove(student);
-            await _applicationDBContext.SaveChangesAsync();
-
-            return Ok(new { message = "Estudante deletado com sucesso" });
+            catch (Exception e)
+            {
+                return BadRequest(new Answer(e.Message, 500));
+            }
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Student>>> GetAllStudents()
         {
+            try
+            {
+                var studentsDTO = await _applicationDBContext.Students
+                    .Select(s => new StudentDTO(s.Id, s.Name, s.DaysOfWeek, s.Courses, s.CoursesClass, s.CoursesClassStep, s.RegisteredAt))
+                    .ToListAsync();
+                if (studentsDTO.IsNullOrEmpty() || !studentsDTO.Any())
+                {
+                    return Ok(new Answer("Nenhum estudante foi encontrado.", 204));
+                }
 
-            var students = await _applicationDBContext.Students.ToListAsync();
-            return Ok(students);
+                return Ok(new Answer<List<StudentDTO>>("Requisição feita com sucesso.", 200, studentsDTO));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new Answer(e.Message, 500));
+            }
         }
 
         [HttpGet("{studentId}")]
-        public async Task<ActionResult<StudentClass>> GetStudent(int studentId)
+        public async Task<ActionResult<StudentClass>> GetStudent(Guid studentId)
         {
-            var student = await _applicationDBContext.classes.FindAsync(studentId);
-            if (student == null)
+            try
             {
-                return NotFound(new { error = "Não foi encontrado nenhum estudante com esse id." });
+                var student = await _applicationDBContext.Students.FindAsync(studentId);
+                if (student == null)
+                {
+                    return Ok(new Answer("Nenhum estudante encontrado com esse id.", 204));
+                }
 
+                var studentDTO = new StudentDTO(student.Id, student.Name, student.DaysOfWeek, student.Courses, student.CoursesClass, student.CoursesClassStep, student.RegisteredAt);
+                return Ok(new Answer<StudentDTO>("Requisição feita com sucesso.", 200, studentDTO));
+            } catch(Exception e)
+            {
+                return BadRequest(new Answer(e.Message, 500));
             }
-
-            return Ok(student);
         }
     }
 }
