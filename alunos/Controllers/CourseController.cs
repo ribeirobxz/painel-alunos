@@ -82,6 +82,11 @@ namespace alunos.Controllers
         {
             try
             {
+                if (!_applicationDBContext.Courses.Any())
+                {
+                    return Ok(new Answer("Não existe nenhum curso cadastrado.", 204));
+                }
+
                 var course = await _applicationDBContext.Courses.FindAsync(courseId);
                 if (course == null)
                 {
@@ -100,6 +105,11 @@ namespace alunos.Controllers
         {
             try
             {
+                if (!_applicationDBContext.Courses.Any())
+                {
+                    return Ok(new Answer("Não existe nenhum curso cadastrado.", 204));
+                }
+
                 var courseClasses = await _applicationDBContext.CourseClasses
                     .Where(course => course.CourseId == courseId)
                     .ToListAsync();
@@ -121,6 +131,11 @@ namespace alunos.Controllers
         {
             try
             {
+                if (!_applicationDBContext.Courses.Any())
+                {
+                    return Ok(new Answer("Não existe nenhum curso cadastrado.", 204));
+                }
+
                 var courses = await _applicationDBContext.Courses.ToListAsync();
                 if (courses == null || !courses.Any())
                 {
@@ -139,6 +154,11 @@ namespace alunos.Controllers
         {
             try
             {
+                if (!_applicationDBContext.Courses.Any())
+                {
+                    return Ok(new Answer("Não existe nenhum curso cadastrado.", 204));
+                }
+
                 var course = await _applicationDBContext.Courses.FindAsync(couseId);
                 if (course == null)
                 {

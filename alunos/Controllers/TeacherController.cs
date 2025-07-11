@@ -63,6 +63,11 @@ namespace alunos.Controllers
         {
             try
             {
+                if (!_applicationDBContext.Teachers.Any())
+                {
+                    return Ok(new Answer("Não existe nenhum professor cadastrado.", 204));
+                }
+
                 var teacher = await _applicationDBContext.Teachers.FindAsync(teacherId);
                 if (teacher == null)
                 {
@@ -83,6 +88,11 @@ namespace alunos.Controllers
         {
             try
             {
+                if (!_applicationDBContext.Teachers.Any())
+                {
+                    return Ok(new Answer("Não existe nenhum professor cadastrado.", 204));
+                }
+
                 var teacher = await _applicationDBContext.Teachers.FindAsync(teacherId);
                 if (teacher == null)
                 {

@@ -1,4 +1,5 @@
-﻿using alunos.Model.Course;
+﻿using alunos.Model.Answer;
+using alunos.Model.Course;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -24,51 +25,68 @@ namespace alunos.Controllers
         [HttpPost]
         public async Task<ActionResult<CourseClass>> CreateCourseClass([FromBody] CreateCourseClassModel createCourseClassModel)
         {
-            
-            var course = await _applicationDBContext.Courses.FindAsync(createCourseClassModel.CourseId);
-            if (course == null)
+            try
             {
-                return NotFound(new { message = "Nenhum curso foi encontrado com esse ID." });
+                var course = await _applicationDBContext.Courses.FindAsync(createCourseClassModel.CourseId);
+                if (course == null)
+                {
+                    return Ok(new Answer("Nenhum curso foi encontrado com esse Id.", 204));
+                }
+
+                var courseClass = new CourseClass
+                {
+                    CourseId = createCourseClassModel.CourseId
+                };
+                await _applicationDBContext.CourseClasses.AddAsync(courseClass);
+                await _applicationDBContext.SaveChangesAsync();
+
+                var answer = new Answer<CourseClass>("Requisição feita com sucesso.", 201, courseClass);
+                return CreatedAtAction(nameof(GetCourseClass), new { classId = courseClass.Id }, answer);
+            } catch(Exception e)
+            {
+                return BadRequest(new Answer(e.Message, 500));
             }
-
-            var courseClass = new CourseClass
-            {
-                CourseId = createCourseClassModel.CourseId
-            };
-            await _applicationDBContext.CourseClasses.AddAsync(courseClass);
-            await _applicationDBContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetCourseClass), new { classId = courseClass.Id }, courseClass);
         }
 
         [HttpPatch("{classId}")]
-        public async Task<IActionResult> UpdateCourseClass(int classId, [FromBody] JsonPatchDocument<CourseClass> patchDoc)
+        public async Task<IActionResult> UpdateCourseClass(Guid classId, [FromBody] JsonPatchDocument<CourseClass> patchDoc)
         {
-            if (patchDoc == null)
+            try
             {
-                return BadRequest(new { message = "Documento de patch inválido." });
-            }
+                if (patchDoc == null)
+                {
+                    return Ok(new Answer("Documento de patch inválido.", 204));
+                }
 
-            var courseClassToUpdate = await _applicationDBContext.CourseClasses.FindAsync(classId);
-            if (courseClassToUpdate == null)
+                var courseClassToUpdate = await _applicationDBContext.CourseClasses.FindAsync(classId);
+                if (courseClassToUpdate == null)
+                {
+                    return Ok(new Answer("Nenhuma aula foi encontrada com esse id.", 204));
+                }
+
+                patchDoc.ApplyTo(courseClassToUpdate, ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                await _applicationDBContext.SaveChangesAsync();
+
+                return Ok(new Answer($"As informações da aula {classId} foram atualizadas", 200));
+            } catch(Exception e)
             {
-                return NotFound(new { message = "Aula não encontrada com esse Id." });
+                return BadRequest(new Answer(e.Message, 500));
             }
-
-            patchDoc.ApplyTo(courseClassToUpdate, ModelState);
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            await _applicationDBContext.SaveChangesAsync();
-
-            return Ok(new { message = $"As informações da aula {classId} foram atualizadas" });
         }
 
         [HttpGet("{classId}")]
         public async Task<ActionResult<CourseClass>> GetCourseClass(int classId)
         {
+            if (!_applicationDBContext.CourseClasses.Any())
+            {
+                return Ok(new Answer("Não existe nenhuma aula de curso cadastrada.", 204));
+            }
+
             var courseClass = await _applicationDBContext.CourseClasses.FindAsync(classId);
             if (courseClass == null)
             {

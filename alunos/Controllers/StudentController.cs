@@ -101,6 +101,11 @@ namespace alunos.Controllers
         {
             try
             {
+                if(!_applicationDBContext.Students.Any())
+                {
+                    return Ok(new Answer("Não existe nenhum estudante cadastrado.", 204));
+                }
+
                 var student = await _applicationDBContext.Students.FindAsync(studentId);
                 if (student == null)
                 {
@@ -123,6 +128,11 @@ namespace alunos.Controllers
         {
             try
             {
+                if (!_applicationDBContext.Students.Any())
+                {
+                    return Ok(new Answer("Não existe nenhum estudante cadastrado.", 204));
+                }
+
                 var studentsDTO = await _applicationDBContext.Students
                     .Select(s => new StudentDTO(s.Id, s.Name, s.DaysOfWeek, s.Courses, s.CoursesClass, s.CoursesClassStep, s.RegisteredAt))
                     .ToListAsync();
@@ -144,6 +154,11 @@ namespace alunos.Controllers
         {
             try
             {
+                if (!_applicationDBContext.Students.Any())
+                {
+                    return Ok(new Answer("Não existe nenhum estudante cadastrado.", 204));
+                }
+
                 var student = await _applicationDBContext.Students.FindAsync(studentId);
                 if (student == null)
                 {
