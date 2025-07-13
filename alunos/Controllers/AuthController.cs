@@ -65,7 +65,7 @@ namespace alunos.Controllers
                     }
                 }
 
-                return Ok(new Answer("Credenciais inválidas", 204));
+                return Ok(new Answer("Credenciais inválidas.", 204));
             } catch(Exception e)
             {
                 return BadRequest(new Answer(e.Message, 500));
